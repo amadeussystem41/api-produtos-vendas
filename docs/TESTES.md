@@ -80,10 +80,16 @@ tests/test_vendas.py ...........                                     [100%]
 
 ### Evidência da execução
 
-Anexar na entrega um print ou trecho do terminal com a saída `27 passed`. Para gerar novamente:
+Saídas reais salvas no projeto:
+
+- `docs/evidencias/pytest.txt` — `27 passed`;
+- `docs/evidencias/newman.txt` — 23 requisições, 35 asserções, 0 falhas (Postman Collection Runner via Newman).
+
+Para gerar novamente:
 
 ```powershell
-python -m pytest -v | Tee-Object -FilePath docs/evidencia_pytest.txt
+python -m pytest -v --color=no | Tee-Object -FilePath docs/evidencias/pytest.txt
+npx newman run docs/postman_collection.json | Tee-Object -FilePath docs/evidencias/newman.txt
 ```
 
 ## 3. Testes manuais no Postman

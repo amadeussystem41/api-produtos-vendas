@@ -405,6 +405,11 @@ python -m pytest -v
 
 Resultado esperado: **27 testes aprovados**.
 
+As saídas reais das execuções estão salvas em:
+
+- [`docs/evidencias/pytest.txt`](docs/evidencias/pytest.txt) — 27 testes aprovados.
+- [`docs/evidencias/newman.txt`](docs/evidencias/newman.txt) — 23 requisições Postman e 35 asserções aprovadas.
+
 Cobertura dos cenários:
 
 - cadastro, normalização de SKU, duplicidade e validações;

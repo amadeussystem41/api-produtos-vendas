@@ -1,0 +1,137 @@
+﻿node.exe : (node:14744) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ((node:14744) [D...ts.F_OK instead:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(Use `node --trace-deprecation ...` to show where the warning was created)
+API de Gest├úo de Produtos e Vendas
+
+Ôûí 01 - Sistema
+Ôöö Health check
+  GET http://127.0.0.1:8000/health [200 OK, 200B, 37ms]
+  ÔêÜ  Status 200 - API online
+  ÔêÜ  Banco de dados conectado
+
+Ôöö Swagger dispon├¡vel
+  GET http://127.0.0.1:8000/docs [200 OK, 1.32kB, 2ms]
+  ÔêÜ  Status 200 - Swagger acess├¡vel
+
+Ôûí 02 - Produtos
+Ôöö Cadastrar produto
+  POST http://127.0.0.1:8000/api/v1/produtos [201 Created, 454B, 11ms]
+  ÔêÜ  Status 201 - produto criado
+  ÔêÜ  Produto possui ID, SKU e estoque inicial de 50
+
+Ôöö Consultar produto por ID
+  GET http://127.0.0.1:8000/api/v1/produtos/7 [200 OK, 449B, 5ms]
+  ÔêÜ  Status 200 - produto encontrado
+  ÔêÜ  ID consultado ├® o produto criado
+
+Ôöö Atualizar produto
+  PATCH http://127.0.0.1:8000/api/v1/produtos/7 [200 OK, 446B, 14ms]
+  ÔêÜ  Status 200 - produto atualizado
+  ÔêÜ  Pre├ºo atualizado para 199.90
+
+Ôöö Listar e buscar produtos
+  GET http://127.0.0.1:8000/api/v1/produtos?busca=Postman&limit=10 [200 OK, 796B, 7ms]
+  ÔêÜ  Status 200 - listagem paginada
+  ÔêÜ  Busca encontra o produto criado
+
+Ôöö Filtrar produtos por categoria
+  GET http://127.0.0.1:8000/api/v1/produtos?categoria=Perif%C3%A9ricos&ativo=true [200 OK, 1.07kB, 8ms]
+  ÔêÜ  Status 200 - filtro aplicado
+  ÔêÜ  Todos os itens s├úo da categoria Perif├®ricos e est├úo ativos
+
+Ôûí 03 - Vendas e estoque
+Ôöö Registrar venda
+  POST http://127.0.0.1:8000/api/v1/vendas [201 Created, 462B, 16ms]
+  ÔêÜ  Status 201 - venda registrada
+  ÔêÜ  Venda conclu├¡da com total de 399.80
+
+Ôöö Verificar baixa de estoque
+  GET http://127.0.0.1:8000/api/v1/produtos/7 [200 OK, 446B, 4ms]
+  ÔêÜ  Estoque passou de 50 para 48
+
+Ôöö Consultar venda por ID
+  GET http://127.0.0.1:8000/api/v1/vendas/2 [200 OK, 457B, 6ms]
+  ÔêÜ  Status 200 - venda encontrada
+  ÔêÜ  Detalhes da venda conferem
+
+Ôöö Consultar hist├│rico de vendas
+  GET http://127.0.0.1:8000/api/v1/vendas?limit=10 [200 OK, 841B, 7ms]
+  ÔêÜ  Status 200 - hist├│rico consultado
+  ÔêÜ  Venda registrada aparece no hist├│rico
+
+Ôöö Filtrar hist├│rico por status
+  GET http://127.0.0.1:8000/api/v1/vendas?status=CONCLUIDA [200 OK, 499B, 7ms]
+  ÔêÜ  Status 200 - filtro por status
+  ÔêÜ  Todas as vendas retornadas est├úo conclu├¡das
+
+Ôöö Bloquear venda sem estoque suficiente
+  POST http://127.0.0.1:8000/api/v1/vendas [409 Conflict, 279B, 5ms]
+  ÔêÜ  Status 409 - venda bloqueada
+  ÔêÜ  Mensagem informa estoque insuficiente
+
+Ôöö Estoque permanece inalterado ap├│s bloqueio
+  GET http://127.0.0.1:8000/api/v1/produtos/7 [200 OK, 446B, 3ms]
+  ÔêÜ  Estoque continua 48
+
+Ôöö Cancelar venda
+  PATCH http://127.0.0.1:8000/api/v1/vendas/2/cancelar [200 OK, 481B, 17ms]
+  ÔêÜ  Status 200 - venda cancelada
+  ÔêÜ  Status e data de cancelamento preenchidos
+
+Ôöö Verificar estorno de estoque
+  GET http://127.0.0.1:8000/api/v1/produtos/7 [200 OK, 446B, 4ms]
+  ÔêÜ  Estoque voltou para 50
+
+Ôöö Bloquear cancelamento repetido
+  PATCH http://127.0.0.1:8000/api/v1/vendas/2/cancelar [409 Conflict, 195B, 5ms]
+  ÔêÜ  Status 409 - venda j├í cancelada
+
+Ôûí 04 - Exclus├úo de produtos
+Ôöö Excluir produto com hist├│rico
+  DELETE http://127.0.0.1:8000/api/v1/produtos/7 [204 No Content, 95B, 8ms]
+  ÔêÜ  Status 204 - exclus├úo l├│gica realizada
+
+Ôöö Confirmar produto desativado
+  GET http://127.0.0.1:8000/api/v1/produtos/7 [200 OK, 447B, 3ms]
+  ÔêÜ  Produto preservado no hist├│rico e inativo
+
+Ôöö Bloquear venda de produto inativo
+  POST http://127.0.0.1:8000/api/v1/vendas [409 Conflict, 266B, 6ms]
+  ÔêÜ  Status 409 - produto inativo n├úo pode ser vendido
+
+Ôöö Cadastrar produto descart├ível
+  POST http://127.0.0.1:8000/api/v1/produtos [201 Created, 396B, 13ms]
+  ÔêÜ  Status 201 - produto descart├ível criado
+
+Ôöö Excluir produto sem vendas
+  DELETE http://127.0.0.1:8000/api/v1/produtos/8 [204 No Content, 95B, 12ms]
+  ÔêÜ  Status 204 - produto removido
+
+Ôöö Confirmar exclus├úo f├¡sica
+  GET http://127.0.0.1:8000/api/v1/produtos/8 [404 Not Found, 192B, 4ms]
+  ÔêÜ  Status 404 - produto n├úo existe mais
+
+ÔöîÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö¼ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö¼ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÉ
+Ôöé                         Ôöé        executed Ôöé          failed Ôöé
+Ôö£ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöñ
+Ôöé              iterations Ôöé               1 Ôöé               0 Ôöé
+Ôö£ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöñ
+Ôöé                requests Ôöé              23 Ôöé               0 Ôöé
+Ôö£ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöñ
+Ôöé            test-scripts Ôöé              23 Ôöé               0 Ôöé
+Ôö£ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöñ
+Ôöé      prerequest-scripts Ôöé               0 Ôöé               0 Ôöé
+Ôö£ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö╝ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöñ
+Ôöé              assertions Ôöé              35 Ôöé               0 Ôöé
+Ôö£ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö┤ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔö┤ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöñ
+Ôöé total run duration: 2.1s                                    Ôöé
+Ôö£ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöñ
+Ôöé total data received: 7.61kB (approx)                        Ôöé
+Ôö£ÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöñ
+Ôöé average response time: 8ms [min: 2ms, max: 37ms, s.d.: 7ms] Ôöé
+ÔööÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÇÔöÿ
