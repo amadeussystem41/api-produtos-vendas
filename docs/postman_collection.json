@@ -1,0 +1,721 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+    "name": "API de Gestão de Produtos e Vendas",
+    "description": "Coleção de testes manuais da API FastAPI de produtos e vendas. Execute o servidor localmente e rode a coleção inteira com o Collection Runner na ordem das pastas. Os IDs criados são salvos automaticamente em variáveis da coleção.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "produto_id",
+      "value": ""
+    },
+    {
+      "key": "venda_id",
+      "value": ""
+    },
+    {
+      "key": "produto_descartavel_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Sistema",
+      "description": "Verificações básicas de disponibilidade e documentação.",
+      "item": [
+        {
+          "name": "Health check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 - API online', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Banco de dados conectado', () => {",
+                  "  pm.expect(body.status).to.eql('ok');",
+                  "  pm.expect(body.banco_de_dados).to.eql('conectado');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/health",
+            "description": "GET /health"
+          }
+        },
+        {
+          "name": "Swagger disponível",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 - Swagger acessível', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/docs",
+            "description": "GET /docs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Produtos",
+      "description": "Cadastro, consulta, atualização e filtros de produtos.",
+      "item": [
+        {
+          "name": "Cadastrar produto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 201 - produto criado', () => {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Produto possui ID, SKU e estoque inicial de 50', () => {",
+                  "  pm.expect(body.id).to.be.a('number');",
+                  "  pm.expect(body.sku).to.include('POSTMAN-');",
+                  "  pm.expect(body.quantidade_estoque).to.eql(50);",
+                  "  pm.expect(body.ativo).to.eql(true);",
+                  "});",
+                  "pm.collectionVariables.set('produto_id', body.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Teclado Mecânico RGB (Postman)\",\n  \"descricao\": \"Produto criado pela coleção de testes do Postman.\",\n  \"categoria\": \"Periféricos\",\n  \"sku\": \"POSTMAN-{{$timestamp}}\",\n  \"preco\": 249.90,\n  \"quantidade_estoque\": 50\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/v1/produtos",
+            "description": "POST /api/v1/produtos - cria um produto e armazena o ID na variável produto_id."
+          }
+        },
+        {
+          "name": "Consultar produto por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 200 - produto encontrado', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('ID consultado é o produto criado', () => {",
+                  "  pm.expect(body.id).to.eql(Number(pm.collectionVariables.get('produto_id')));",
+                  "  pm.expect(body.quantidade_estoque).to.eql(50);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos/{{produto_id}}",
+            "description": "GET /api/v1/produtos/{produto_id}"
+          }
+        },
+        {
+          "name": "Atualizar produto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 200 - produto atualizado', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Preço atualizado para 199.90', () => {",
+                  "  pm.expect(Number(body.preco)).to.eql(199.90);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preco\": 199.90,\n  \"descricao\": \"Produto atualizado durante os testes do Postman.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/v1/produtos/{{produto_id}}",
+            "description": "PATCH /api/v1/produtos/{produto_id}"
+          }
+        },
+        {
+          "name": "Listar e buscar produtos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 200 - listagem paginada', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Busca encontra o produto criado', () => {",
+                  "  pm.expect(body.total).to.be.at.least(1);",
+                  "  pm.expect(body.itens.length).to.be.at.least(1);",
+                  "  pm.expect(body.itens.some((item) => item.nome.includes('Postman'))).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos?busca=Postman&limit=10",
+            "description": "GET /api/v1/produtos?busca=Postman&limit=10"
+          }
+        },
+        {
+          "name": "Filtrar produtos por categoria",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 200 - filtro aplicado', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Todos os itens são da categoria Periféricos e estão ativos', () => {",
+                  "  body.itens.forEach((item) => {",
+                  "    pm.expect(item.categoria.toLowerCase()).to.eql('periféricos');",
+                  "    pm.expect(item.ativo).to.eql(true);",
+                  "  });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos?categoria=Perif%C3%A9ricos&ativo=true",
+            "description": "GET /api/v1/produtos?categoria=Periféricos&ativo=true"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Vendas e estoque",
+      "description": "Registro de venda, baixa de estoque, bloqueio por falta de estoque, histórico e cancelamento.",
+      "item": [
+        {
+          "name": "Registrar venda",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 201 - venda registrada', () => {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Venda concluída com total de 399.80', () => {",
+                  "  pm.expect(body.status).to.eql('CONCLUIDA');",
+                  "  pm.expect(Number(body.total)).to.eql(399.80);",
+                  "  pm.expect(body.itens[0].quantidade).to.eql(2);",
+                  "});",
+                  "pm.collectionVariables.set('venda_id', body.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itens\": [\n    {\n      \"produto_id\": {{produto_id}},\n      \"quantidade\": 2\n    }\n  ],\n  \"observacao\": \"Venda criada pela coleção de testes do Postman.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/v1/vendas",
+            "description": "POST /api/v1/vendas - vende 2 unidades e armazena o ID em venda_id."
+          }
+        },
+        {
+          "name": "Verificar baixa de estoque",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Estoque passou de 50 para 48', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(body.quantidade_estoque).to.eql(48);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos/{{produto_id}}",
+            "description": "Confere a dedução automática de estoque após a venda."
+          }
+        },
+        {
+          "name": "Consultar venda por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 200 - venda encontrada', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Detalhes da venda conferem', () => {",
+                  "  pm.expect(body.id).to.eql(Number(pm.collectionVariables.get('venda_id')));",
+                  "  pm.expect(body.itens.length).to.eql(1);",
+                  "  pm.expect(Number(body.total)).to.eql(399.80);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/vendas/{{venda_id}}",
+            "description": "GET /api/v1/vendas/{venda_id}"
+          }
+        },
+        {
+          "name": "Consultar histórico de vendas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "const vendaId = Number(pm.collectionVariables.get('venda_id'));",
+                  "pm.test('Status 200 - histórico consultado', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Venda registrada aparece no histórico', () => {",
+                  "  pm.expect(body.total).to.be.at.least(1);",
+                  "  pm.expect(body.itens.some((venda) => venda.id === vendaId)).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/vendas?limit=10",
+            "description": "GET /api/v1/vendas?limit=10"
+          }
+        },
+        {
+          "name": "Filtrar histórico por status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 200 - filtro por status', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Todas as vendas retornadas estão concluídas', () => {",
+                  "  body.itens.forEach((venda) => {",
+                  "    pm.expect(venda.status).to.eql('CONCLUIDA');",
+                  "  });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/vendas?status=CONCLUIDA",
+            "description": "GET /api/v1/vendas?status=CONCLUIDA"
+          }
+        },
+        {
+          "name": "Bloquear venda sem estoque suficiente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 409 - venda bloqueada', () => {",
+                  "  pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Mensagem informa estoque insuficiente', () => {",
+                  "  pm.expect(body.detail.toLowerCase()).to.include('estoque insuficiente');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itens\": [\n    {\n      \"produto_id\": {{produto_id}},\n      \"quantidade\": 999999\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/v1/vendas",
+            "description": "Teste negativo: tenta vender mais do que o estoque disponível e espera HTTP 409."
+          }
+        },
+        {
+          "name": "Estoque permanece inalterado após bloqueio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Estoque continua 48', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().quantidade_estoque).to.eql(48);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos/{{produto_id}}",
+            "description": "Garante que a venda rejeitada não alterou o estoque."
+          }
+        },
+        {
+          "name": "Cancelar venda",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 200 - venda cancelada', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Status e data de cancelamento preenchidos', () => {",
+                  "  pm.expect(body.status).to.eql('CANCELADA');",
+                  "  pm.expect(body.cancelada_em).to.not.be.null;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/api/v1/vendas/{{venda_id}}/cancelar",
+            "description": "PATCH /api/v1/vendas/{venda_id}/cancelar"
+          }
+        },
+        {
+          "name": "Verificar estorno de estoque",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Estoque voltou para 50', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().quantidade_estoque).to.eql(50);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos/{{produto_id}}",
+            "description": "Confere a devolução das 2 unidades ao estoque."
+          }
+        },
+        {
+          "name": "Bloquear cancelamento repetido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 409 - venda já cancelada', () => {",
+                  "  pm.response.to.have.status(409);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{base_url}}/api/v1/vendas/{{venda_id}}/cancelar",
+            "description": "Teste negativo: não permite cancelar a mesma venda duas vezes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Exclusão de produtos",
+      "description": "Exclusão física de produto sem vendas e desativação de produto com histórico.",
+      "item": [
+        {
+          "name": "Excluir produto com histórico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 - exclusão lógica realizada', () => {",
+                  "  pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos/{{produto_id}}",
+            "description": "DELETE /api/v1/produtos/{produto_id} - produto possui venda, então é desativado."
+          }
+        },
+        {
+          "name": "Confirmar produto desativado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Produto preservado no histórico e inativo', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(body.ativo).to.eql(false);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos/{{produto_id}}",
+            "description": "Confirma a exclusão lógica do produto que possui vendas."
+          }
+        },
+        {
+          "name": "Bloquear venda de produto inativo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 409 - produto inativo não pode ser vendido', () => {",
+                  "  pm.response.to.have.status(409);",
+                  "  pm.expect(body.detail.toLowerCase()).to.include('inativo');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itens\": [\n    {\n      \"produto_id\": {{produto_id}},\n      \"quantidade\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/v1/vendas",
+            "description": "Teste negativo: produto desativado não aceita novas vendas."
+          }
+        },
+        {
+          "name": "Cadastrar produto descartável",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('Status 201 - produto descartável criado', () => {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.collectionVariables.set('produto_descartavel_id', body.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Produto Descartável (Postman)\",\n  \"categoria\": \"Testes\",\n  \"sku\": \"DESCARTE-{{$timestamp}}\",\n  \"preco\": 1.00,\n  \"quantidade_estoque\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/v1/produtos",
+            "description": "Cria um produto sem vendas para demonstrar a exclusão física."
+          }
+        },
+        {
+          "name": "Excluir produto sem vendas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204 - produto removido', () => {",
+                  "  pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos/{{produto_descartavel_id}}",
+            "description": "DELETE /api/v1/produtos/{produto_descartavel_id} - sem vendas, exclusão física."
+          }
+        },
+        {
+          "name": "Confirmar exclusão física",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404 - produto não existe mais', () => {",
+                  "  pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/v1/produtos/{{produto_descartavel_id}}",
+            "description": "Confirma que o produto sem vendas foi realmente excluído."
+          }
+        }
+      ]
+    }
+  ]
+}
